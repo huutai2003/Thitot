@@ -4,7 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chúc Thi Tốt!</title>
-  <link rel="stylesheet" href="new_1.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to top right, #fce4ec, #e0f7fa);
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      overflow: hidden;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: #d81b60;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .main-text {
+      font-size: 3.5em;
+      animation: pulse 2s infinite;
+    }
+
+    .sub-text {
+      font-size: 1.5em;
+      margin-top: 10px;
+      color: #6a1b9a;
+      animation: fadeIn 4s ease-in;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #fireworks {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -12,6 +64,65 @@
     <p class="sub-text">Khà khà khà khà</p>
     <canvas id="fireworks"></canvas>
   </div>
-  <script src="new__1.js"></script>
+
+  <script>
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particles = [];
+
+    function createParticle(x, y) {
+      const colors = ['#ff4081', '#fdd835', '#00e676', '#29b6f6'];
+      for (let i = 0; i < 30; i++) {
+        particles.push({
+          x: x,
+          y: y,
+          radius: Math.random() * 3 + 2,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          angle: Math.random() * 2 * Math.PI,
+          speed: Math.random() * 5 + 2,
+          alpha: 1
+        });
+      }
+    }
+
+    function updateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles = particles.filter(p => p.alpha > 0);
+
+      for (let p of particles) {
+        p.x += Math.cos(p.angle) * p.speed;
+        p.y += Math.sin(p.angle) * p.speed;
+        p.alpha -= 0.01;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = `rgba(${hexToRgb(p.color)},${p.alpha})`;
+        ctx.fill();
+      }
+
+      requestAnimationFrame(updateParticles);
+    }
+
+    function hexToRgb(hex) {
+      let bigint = parseInt(hex.replace('#',''), 16);
+      return `${(bigint >> 16) & 255},${(bigint >> 8) & 255},${bigint & 255}`;
+    }
+
+    canvas.addEventListener('click', (e) => {
+      createParticle(e.clientX, e.clientY);
+    });
+
+    setInterval(() => {
+      let x = Math.random() * canvas.width;
+      let y = Math.random() * canvas.height / 2;
+      createParticle(x, y);
+    }, 1500);
+
+    updateParticles();
+  </script>
 </body>
 </html>
